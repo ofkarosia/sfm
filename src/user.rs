@@ -10,12 +10,12 @@ pub fn get_user() -> Result<String> {
 }
 
 pub fn is_root() -> Result<bool> {
-    get_user().map(|s| s == "root")
+    get_user().map(|s| s.trim() == "root")
 }
 
 pub fn get_repo_dir() -> Result<PathBuf> {
     let mut path = PathBuf::from("/home");
-    path.push(get_user()?);
+    path.push(get_user()?.trim());
     path.push(REPO_DIR);
     Ok(path)
 }
