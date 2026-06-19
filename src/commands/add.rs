@@ -9,8 +9,8 @@ pub fn add_file(file: PathBuf) -> Result<()> {
     let rel_path = file.strip_prefix("/")?;
     let dest = dir.join(rel_path);
 
-    fs::create_dir_all(&dest)?;
+    fs::create_dir_all(dest.parent().unwrap())?;
 
     Command::new("cp").args([&file, &dest]).run()?;
-    Command::new("git").arg("add").arg(rel_path).run()
+    Command::new("git").arg("add").arg(rel_path).current_dir(dir).run()
 }
