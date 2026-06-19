@@ -45,6 +45,10 @@ pub fn run() -> Result<()> {
     let args: Args = argh::from_env();
 
     if args.command.is_none() {
+        if args.rest.is_empty() {
+            bail!("No arguments specified")
+        }
+        
         return passthrough(args.rest);
     }
 

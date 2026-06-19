@@ -26,7 +26,6 @@ impl CommandExt for Command {
     }
 
     fn output_checked(&mut self) -> Result<String> {
-        println!("Executing: {self:?}");
         let output = self.output()?;
         output.status.checked()?;
         Ok(String::from_utf8(output.stdout)?)
