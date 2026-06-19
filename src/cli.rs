@@ -1,21 +1,15 @@
 use anyhow::{Result, bail};
-use argh::FromArgs;
+use clap::Parser;
 
 use crate::{
-    commands::{AddCommand, CloneCommand, Command, add::add_file, clone::clone_repo, init::init_repo},
+    commands::{Command, add::add_file, clone::clone_repo, init::init_repo, process_resting_args},
     git::passthrough, user::is_root,
 };
 
-#[derive(Debug, FromArgs)]
-#[argh(
-    help_triggers("-h", "--help", "help"),
-    description = "Dead simple system file manager.\nRest arguments are passed to `git`."
-)]
+#[derive(Debug, Parser)]
 struct Args {
-    #[argh(subcommand)]
-    command: Option<Command>,
-    #[argh(positional, greedy)]
-    rest: Vec<String>,
+    #[command(subcommand)]
+    command: Command,
 }
 
 pub fn run() -> Result<()> {
@@ -23,19 +17,13 @@ pub fn run() -> Result<()> {
         bail!("You should not run this program as root")
     }
 
-    let args: Args = argh::from_env();
-
-    if args.command.is_none() {
-        if args.rest.is_empty() {
-            bail!("No arguments specified")
-        }
-
-        return passthrough(args.rest);
-    }
-
-    match args.command.unwrap() {
-        Command::Init(_) => init_repo(),
-        Command::Add(AddCommand { file }) => add_file(file),
-        Command::Clone(CloneCommand { url, rest }) => clone_repo(url, rest)
+    let args = Args::parse();
+    println!("{args:?}");
+    
+    match args.command {
+        Command::Init => init_repo(),
+        Command::Add { file } => add_file(file),
+        Command::Clone { url, rest } => clone_repo(url, process_resting_args(rest)),
+        Command::Passthrough(args) => passthrough(args)
     }
 }

@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::Command};
+use std::{ffi::OsString, path::PathBuf, process::Command};
 use anyhow::{Result, bail};
 
 use crate::{extension::CommandExt, user::get_repo_dir};
@@ -28,8 +28,15 @@ fn overwrite_files(dir: PathBuf) -> Result<()> {
     Ok(())
 }
 
-pub fn clone_repo(url: String, rest: Vec<String>) -> Result<()> {
+pub fn clone_repo(url: String, rest: Option<Vec<OsString>>) -> Result<()> {
     let dir = get_repo_dir()?;
-    Command::new("git").arg("clone").arg(url).arg(&dir).args(rest).run()?;
+    let mut cmd = Command::new("git");
+    let mut cmd = cmd.arg("clone").arg(url).arg(&dir);
+
+    if let Some(args) = rest {
+        cmd = cmd.args(args)
+    }
+
+    cmd.run()?;
     overwrite_files(dir)
 }

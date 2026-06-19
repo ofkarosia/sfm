@@ -1,38 +1,34 @@
-use std::path::PathBuf;
-
-use argh::FromArgs;
+use std::{ffi::OsString, path::PathBuf};
+use clap::Subcommand;
 
 pub mod add;
 pub mod init;
 pub mod clone;
 
-#[derive(Debug, FromArgs)]
-#[argh(subcommand, name = "init")]
-/// Init repo
-pub struct InitCommand {}
-
-#[derive(Debug, FromArgs)]
-#[argh(subcommand, name = "add")]
-/// Add file
-pub struct AddCommand {
-    #[argh(positional)]
-    pub file: PathBuf,
+#[derive(Debug, Subcommand)]
+pub enum Passthrough {
+    #[command(external_subcommand)]
+    Args(Vec<OsString>)
 }
 
-#[derive(Debug, FromArgs)]
-#[argh(subcommand, name = "clone")]
-/// Clone repo
-pub struct CloneCommand {
-    #[argh(positional)]
-    pub url: String,
-    #[argh(positional, greedy)]
-    pub rest: Vec<String>
+pub fn process_resting_args(args: Option<Passthrough>) -> Option<Vec<OsString>> {
+    args.map(|p| {
+        let Passthrough::Args(args) = p;
+        args
+    })
 }
 
-#[derive(Debug, FromArgs)]
-#[argh(subcommand)]
+#[derive(Debug, Subcommand)]
 pub enum Command {
-    Init(InitCommand),
-    Add(AddCommand),
-    Clone(CloneCommand)
+    Init,
+    Add {
+        file: PathBuf,
+    },
+    Clone {
+        url: String,
+        #[command(subcommand)]
+        rest: Option<Passthrough>
+    },
+    #[command(external_subcommand)]
+    Passthrough(Vec<OsString>)
 }
