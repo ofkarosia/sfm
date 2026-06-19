@@ -1,9 +1,9 @@
 use anyhow::Result;
 use std::process::Command;
 
-use crate::extension::CommandExt;
+use crate::{extension::CommandExt, user::get_repo_dir};
 
 pub fn passthrough(args: Vec<String>) -> Result<()> {
-    let sub_cmd = &args[0];
-    Command::new(sub_cmd).args(&args[1..]).run()
+    let dir = get_repo_dir()?;
+    Command::new("git").args(args).current_dir(dir).run()
 }
