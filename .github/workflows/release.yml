@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 env:
-  BIN_NAME: dangorun
+  BIN_NAME: sfm
 
 jobs:
   build:
@@ -33,7 +33,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Build
-        run: cargo build --profile ci
+        run: cargo build
 
       - name: Install UPX
         run: sudo apt-get update && sudo apt-get install -y upx
