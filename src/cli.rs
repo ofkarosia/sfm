@@ -1,35 +1,16 @@
-use std::path::PathBuf;
-
 use anyhow::{Result, bail};
 use argh::FromArgs;
 
 use crate::{
-    commands::{add::add_file, init::init_repo},
+    commands::{AddCommand, CloneCommand, Command, add::add_file, clone::clone_repo, init::init_repo},
     git::passthrough, user::is_root,
 };
 
 #[derive(Debug, FromArgs)]
-#[argh(subcommand, name = "init")]
-/// Init repo
-struct InitCommand {}
-
-#[derive(Debug, FromArgs)]
-#[argh(subcommand, name = "add")]
-/// Add file
-struct AddCommand {
-    #[argh(positional)]
-    file: PathBuf,
-}
-
-#[derive(Debug, FromArgs)]
-#[argh(subcommand)]
-enum Command {
-    Init(InitCommand),
-    Add(AddCommand),
-}
-
-#[derive(Debug, FromArgs)]
-/// Dead simple system file manager
+#[argh(
+    help_triggers("-h", "--help", "help"),
+    description = "Dead simple system file manager.\nRest arguments are passed to `git`."
+)]
 struct Args {
     #[argh(subcommand)]
     command: Option<Command>,
@@ -48,12 +29,13 @@ pub fn run() -> Result<()> {
         if args.rest.is_empty() {
             bail!("No arguments specified")
         }
-        
+
         return passthrough(args.rest);
     }
 
     match args.command.unwrap() {
         Command::Init(_) => init_repo(),
         Command::Add(AddCommand { file }) => add_file(file),
+        Command::Clone(CloneCommand { url, rest }) => clone_repo(url, rest)
     }
 }
