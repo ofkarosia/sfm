@@ -1,4 +1,5 @@
 use anyhow::{Result, anyhow};
+use log::debug;
 use std::process::{Command, ExitStatus};
 
 pub trait ExitStatusExt {
@@ -8,10 +9,13 @@ pub trait ExitStatusExt {
 impl ExitStatusExt for ExitStatus {
     fn checked(self) -> Result<()> {
         if self.success() {
-            Ok(())
-        } else {
-            Err(anyhow!("Command failed with code: {:?}", self.code()))
+            return Ok(())
         }
+
+        Err(match self.code() {
+            Some(code) => anyhow!("Process exited with code: {code}"),
+            None => anyhow!("Process aborted by signal"),
+        })
     }
 }
 
@@ -22,10 +26,12 @@ pub trait CommandExt {
 
 impl CommandExt for Command {
     fn run(&mut self) -> Result<()> {
+        debug!("Running: {self:?}");
         self.status()?.checked()
     }
 
     fn output_checked(&mut self) -> Result<String> {
+        debug!("Running: {self:?}");
         let output = self.output()?;
         output.status.checked()?;
         Ok(String::from_utf8(output.stdout)?)

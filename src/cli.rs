@@ -1,5 +1,6 @@
 use anyhow::{Result, bail};
 use clap::Parser;
+use log::debug;
 
 use crate::{
     commands::{Command, add::add_file, clone::clone_repo, init::init_repo, process_resting_args},
@@ -13,12 +14,14 @@ struct Args {
 }
 
 pub fn run() -> Result<()> {
+    env_logger::init();
+
     if is_root()? {
         bail!("You should not run this program as root")
     }
 
     let args = Args::parse();
-    println!("{args:?}");
+    debug!("{args:?}");
     
     match args.command {
         Command::Init => init_repo(),

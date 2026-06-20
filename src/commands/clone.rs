@@ -1,9 +1,9 @@
-use std::{ffi::OsString, path::PathBuf, process::Command};
+use std::{ffi::OsString, path::Path, process::Command};
 use anyhow::{Result, bail};
 
 use crate::{extension::CommandExt, user::get_repo_dir};
 
-fn overwrite_files(dir: PathBuf) -> Result<()> {
+fn overwrite_files(dir: &Path) -> Result<()> {
     for entry in dir.read_dir()?.filter_map(|e| match e {
         Ok(e) => Some(e),
         Err(_) => None,
