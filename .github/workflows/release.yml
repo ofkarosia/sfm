@@ -33,20 +33,20 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Build
-        run: cargo build --release
+        run: cargo build --profile ci
 
       - name: Install UPX
         run: sudo apt-get update && sudo apt-get install -y upx
 
       - name: Compress with UPX
-        run: upx --best --lzma target/release/${{ env.BIN_NAME }}${{ matrix.bin_suffix }}
+        run: upx --best --lzma target/ci/${{ env.BIN_NAME }}${{ matrix.bin_suffix }}
 
       - name: Prepare artifact
         shell: bash
         run: |
           mkdir -p dist
           FILE_NAME=${{ env.BIN_NAME }}-${{ matrix.platform }}${{ matrix.bin_suffix }}
-          mv target/release/${{ env.BIN_NAME }}${{ matrix.bin_suffix }} dist/$FILE_NAME
+          mv target/ci/${{ env.BIN_NAME }}${{ matrix.bin_suffix }} dist/$FILE_NAME
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v7
