@@ -4,7 +4,7 @@ use std::{path::{Path, PathBuf}, process::Command};
 
 use crate::extension::CommandExt;
 
-const REPO_REL_PATH: &str = "./.sfm/repo";
+const REPO_REL_PATH: &str = ".sfm/repo";
 static USER: OnceCell<String> = OnceCell::new();
 static REPO_DIR: OnceCell<PathBuf> = OnceCell::new();
 
