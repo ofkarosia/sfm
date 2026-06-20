@@ -1,14 +1,17 @@
 use std::{ffi::OsString, path::Path, process::Command};
 use anyhow::{Result, bail};
+use ignore::WalkBuilder;
 
 use crate::{extension::CommandExt, user::get_repo_dir};
 
-fn overwrite_files(dir: &Path) -> Result<()> {
-    for entry in dir.read_dir()?.filter_map(|e| match e {
-        Ok(e) => Some(e),
-        Err(_) => None,
+fn overwrite_files(repo_dir: &Path) -> Result<()> {
+    let walk = WalkBuilder::new(repo_dir).add_custom_ignore_filename(".sfmignore").max_depth(Some(1)).build();
+
+    for entry in walk.filter_map(|e| match e {
+        Ok(e) if e.depth() != 0 => Some(e),
+        _ => None,
     }) {
-        let file_type = entry.file_type()?;
+        let file_type = entry.file_type().unwrap();
         let file_name = entry.file_name();
 
         if file_type.is_symlink() {
@@ -16,7 +19,7 @@ fn overwrite_files(dir: &Path) -> Result<()> {
         }
 
         let mut cmd = Command::new("sudo");
-        let mut cmd = cmd.arg("cp").current_dir(&dir);
+        let mut cmd = cmd.arg("cp").current_dir(&repo_dir);
 
         if file_type.is_dir() {
             cmd = cmd.arg("-r")
@@ -29,14 +32,14 @@ fn overwrite_files(dir: &Path) -> Result<()> {
 }
 
 pub fn clone_repo(url: String, rest: Option<Vec<OsString>>) -> Result<()> {
-    let dir = get_repo_dir()?;
+    let repo_dir = get_repo_dir()?;
     let mut cmd = Command::new("git");
-    let mut cmd = cmd.arg("clone").arg(url).arg(&dir);
+    let mut cmd = cmd.arg("clone").arg(url).arg(&repo_dir);
 
     if let Some(args) = rest {
         cmd = cmd.args(args)
     }
 
     cmd.run()?;
-    overwrite_files(dir)
+    overwrite_files(repo_dir)
 }
