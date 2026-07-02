@@ -1,15 +1,15 @@
-use std::{ffi::OsString, path::PathBuf};
 use clap::Subcommand;
+use std::{ffi::OsString, path::PathBuf};
 
 pub mod add;
-pub mod init;
-pub mod clone;
 pub mod cd;
+pub mod clone;
+pub mod init;
 
 #[derive(Debug, Subcommand)]
 pub enum Passthrough {
     #[command(external_subcommand)]
-    Args(Vec<OsString>)
+    Args(Vec<OsString>),
 }
 
 pub fn process_resting_args(args: Option<Passthrough>) -> Option<Vec<OsString>> {
@@ -24,17 +24,15 @@ pub enum Command {
     /// Init repo
     Init,
     /// Wrapper around `git add`
-    Add {
-        file: PathBuf,
-    },
+    Add { file: PathBuf },
     /// Clone the repo and overwrite existing files
     Clone {
         url: String,
         #[command(subcommand)]
-        rest: Option<Passthrough>
+        rest: Option<Passthrough>,
     },
     /// Jump to the repo directory in new shell
     Cd,
     #[command(external_subcommand)]
-    Passthrough(Vec<OsString>)
+    Passthrough(Vec<OsString>),
 }

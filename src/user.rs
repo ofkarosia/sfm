@@ -1,6 +1,9 @@
 use anyhow::Result;
 use once_cell::sync::OnceCell;
-use std::{path::{Path, PathBuf}, process::Command};
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 use crate::extension::CommandExt;
 

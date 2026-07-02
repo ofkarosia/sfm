@@ -9,7 +9,7 @@ pub trait ExitStatusExt {
 impl ExitStatusExt for ExitStatus {
     fn checked(self) -> Result<()> {
         if self.success() {
-            return Ok(())
+            return Ok(());
         }
 
         Err(match self.code() {

@@ -3,8 +3,12 @@ use clap::Parser;
 use log::debug;
 
 use crate::{
-    commands::{Command, add::add_file, cd::cd_repo, clone::clone_repo, init::init_repo, process_resting_args},
-    git::passthrough, user::is_root,
+    commands::{
+        Command, add::add_file, cd::cd_repo, clone::clone_repo, init::init_repo,
+        process_resting_args,
+    },
+    git::passthrough,
+    user::is_root,
 };
 
 #[derive(Debug, Parser)]
@@ -26,12 +30,12 @@ pub fn run() -> Result<()> {
 
     let args = Args::parse();
     debug!("{args:?}");
-    
+
     match args.command {
         Command::Init => init_repo(),
         Command::Add { file } => add_file(file),
         Command::Clone { url, rest } => clone_repo(url, process_resting_args(rest)),
         Command::Cd => cd_repo(),
-        Command::Passthrough(args) => passthrough(args)
+        Command::Passthrough(args) => passthrough(args),
     }
 }

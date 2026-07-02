@@ -12,5 +12,9 @@ pub fn add_file(file: PathBuf) -> Result<()> {
     fs::create_dir_all(dest.parent().unwrap())?;
 
     Command::new("cp").args([&file, &dest]).run()?;
-    Command::new("git").arg("add").arg(rel_path).current_dir(dir).run()
+    Command::new("git")
+        .arg("add")
+        .arg(rel_path)
+        .current_dir(dir)
+        .run()
 }
