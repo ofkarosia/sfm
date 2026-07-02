@@ -6,6 +6,7 @@ pub mod cd;
 pub mod clone;
 pub mod init;
 pub mod sync;
+pub mod status;
 
 #[derive(Debug, Subcommand)]
 pub enum Passthrough {
@@ -44,6 +45,8 @@ pub enum Command {
         #[arg(short = 'A', long)]
         add: bool,
     },
+    /// Equivalent to `sfm sync && git status` in the repo directory
+    Status,
     #[command(external_subcommand)]
     Passthrough(Vec<OsString>),
 }

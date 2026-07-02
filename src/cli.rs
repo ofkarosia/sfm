@@ -4,11 +4,8 @@ use log::debug;
 
 use crate::{
     commands::{
-        Command, add::add_file, cd::cd_repo, clone::clone_repo, init::init_repo,
-        process_resting_args, sync::sync_to_repo,
-    },
-    git::passthrough,
-    user::is_root,
+        Command, add::add_file, cd::cd_repo, clone::clone_repo, init::init_repo, process_resting_args, status::check_repo_status, sync::sync_to_repo,
+    }, git::passthrough, user::is_root,
 };
 
 #[derive(Debug, Parser)]
@@ -37,6 +34,7 @@ pub fn run() -> Result<()> {
         Command::Clone { url, rest } => clone_repo(url, process_resting_args(rest)),
         Command::Cd => cd_repo(),
         Command::Sync { add } => sync_to_repo(add),
+        Command::Status => check_repo_status(),
         Command::Passthrough(args) => passthrough(args),
     }
 }

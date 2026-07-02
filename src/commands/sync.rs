@@ -1,7 +1,7 @@
-use std::{fs, path::PathBuf, process::Command, result};
-
+use std::{os::unix::fs::MetadataExt, path::PathBuf, process::Command, result};
 use anyhow::Result;
 use ignore::WalkBuilder;
+use log::debug;
 
 use crate::{extension::CommandExt, user::get_repo_dir};
 
@@ -26,12 +26,21 @@ pub fn sync_to_repo(add: bool) -> Result<()> {
 
     for (target, dest) in files {
         let tmeta = target.metadata()?;
-        let dmeta = target.metadata()?;
-        #[cfg(target_os = "linux")]
+        let dmeta = dest.metadata()?;
+        
         let changed = tmeta.mtime() != dmeta.mtime() || tmeta.ctime() != dmeta.ctime();
+
+        if !changed {
+            debug!("Skipping copying file: {}", target.display());
+            continue;
+        }
 
         Command::new("cp").arg(&target).arg(&dest).current_dir(repo_dir).run()?
     }
 
-    Ok(())
+    if !add {
+        return Ok(())
+    }
+
+    Command::new("git").arg("add").arg("-u").current_dir(&repo_dir).run()
 }
